@@ -1,0 +1,197 @@
+﻿@page
+@model IndexModel
+
+@using Microsoft.AspNetCore.Identity
+@using HajurKoCarRental.Areas.Identity.Data;
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+    var roles = (List<IdentityRole>)ViewData["roles"];
+
+    bool editingOtherUser = false;
+    string userId = "";
+    string handler = "";
+    var firstName = "";
+
+    if (ViewData["userId"] != null)
+    {
+        userId = (string)ViewData["userId"];
+        editingOtherUser = (UserManager.GetUserId(User) == userId) ? false : true;
+        var user = UserManager.FindByIdAsync(userId).Result;
+        firstName = user.FirstName;
+    }
+
+    if (editingOtherUser)
+    {
+        ViewData["Title"] = firstName + "'s Profile";
+        handler = "other";
+    }
+}
+
+<h3 class="text-color-primary">@ViewData["Title"]</h3>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-0 pb-0"></div>
+<form id="profile-form" asp-page-handler="@handler" asp-route-userId="@userId" method="post" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="form-floating mb-2">
+                <input asp-for="Input.FirstName" class="form-control" autocomplete="First Name" aria-required="true" />
+                <label asp-for="Input.FirstName"></label>
+                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Input.LastName" class="form-control" />
+                <label asp-for="Input.LastName" class="form-label"></label>
+                <span asp-validation-for="Input.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Email" class="form-control" disabled />
+                <label asp-for="Email" class="form-label"></label>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Input.Address" class="form-control" />
+                <label asp-for="Input.Address" class="form-label"></label>
+                <span asp-validation-for="Input.Address" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Input.PhoneNumber" class="form-control" />
+                <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                @if ((User.IsInRole("Admin") && editingOtherUser) || !User.IsInRole("Admin"))
+                {
+                    @if (User.IsInRole("User"))
+                    {
+                        <input asp-for="Input.UserRole" hidden />
+                    }
+                    else
+                    {
+                        <select asp-for="Input.UserRole" class="form-select" asp-items='new SelectList(roles, "Id", "Name")'></select>
+                        <label asp-for="Input.UserRole" class="form-label"></label>
+                        <span asp-validation-for="Input.UserRole" class="text-danger"></span>
+                    }
+                }
+                else
+                {
+                    <input asp-for="Input.UserRole" hidden />
+                    <input name="LocalRole" value="Admin" disabled class="form-control" />
+                    <label for="LocalRole" class="form-label">Role</label>
+                }
+            </div>
+        </div>
+        <div class="col-6 col-sm-7 col-md-6 col-lg-5">
+            <div class="form-floating mb-2">
+                @if (Model.Input.Picture != null)
+                {
+                    <img id="imgPicture" src="data:image/*;base64,@(Convert.ToBase64String(Model.Input.Picture))">
+                }
+                else
+                {
+                    <img id="imgPicture" src="~/images/add-user.png">
+                }
+                <label asp-for="Input.Picture" id="imgLabel" class="form-label"></label>
+                <span asp-validation-for="Input.Picture" class="text-danger"></span>
+            </div>
+
+            <input type="file" accept=".png,.jpg,.jpeg,.gif,.tif" asp-for="Input.Picture" class="form-control mb-3" id="formFile"
+                   onchange="document.getElementById('imgPicture').src = window.URL.createObjectURL(this.files[0])" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <button id="update-profile-button" type="submit" class="w-100 form-control btn btn-lg btn-primary">Save</button>
+        </div>
+    </div>
+</form>
+
+@{
+            /*
+
+        <form id="profile-form" method="post" asp-page-handler="@handler" asp-route-userId="@userId" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-6">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-0 pb-0"></div>
+            <div class="form-floating mb-2">
+                <input asp-for="Input.FirstName" class="form-control" />
+                <label asp-for="Input.FirstName" class="form-label"></label>
+                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Input.LastName" class="form-control" />
+                <label asp-for="Input.LastName" class="form-label"></label>
+                <span asp-validation-for="Input.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Email" class="form-control" disabled />
+                <label asp-for="Email" class="form-label"></label>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Input.Address" class="form-control" />
+                <label asp-for="Input.Address" class="form-label"></label>
+                <span asp-validation-for="Input.Address" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Input.PhoneNumber" class="form-control" />
+                <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                @if ((User.IsInRole("Admin") && editingOtherUser) || !User.IsInRole("Admin"))
+                    {
+                    @if(User.IsInRole("User"))
+                        {
+                        <input asp-for="Input.UserRole" hidden />
+                    }
+                    else
+                        {
+                        <select asp-for="Input.UserRole" class="form-select" asp-items='new SelectList(roles, "Id", "Name")'></select>
+                        <label asp-for="Input.UserRole" class="form-label"></label>
+                        <span asp-validation-for="Input.UserRole" class="text-danger"></span>
+                }
+                }
+                else
+                    {
+                    <input value="Admin" name="Admin" disabled class="form-control" />
+                    <label for="Admin" class="form-label">User Role</label>
+            }
+        </div>
+        </div>
+        <div class="col-6 col-sm-7 col-md-6 justify-content-center">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-floating mb-2">
+                @if (Model.Input.Picture != null)
+                    {
+                    <img id="imgPicture" src="data:image/*;base64,@(Convert.ToBase64String(Model.Input.Picture))">
+                }
+                else
+                    {
+                    <img id="imgPicture" src="~/images/add-user.png">
+                }
+
+                <label asp-for="Input.Picture" id="imgLabel" class="form-label"></label>
+                <span asp-validation-for="Input.Picture" class="text-danger"></span>
+            </div>
+                   <input type="file"
+                   accept=".png,.jpg,.jpeg,.gif,.tif"
+                   asp-for="Input.Picture"
+                   class="form-control mb-3"
+                   id="formFile"
+                   onchange="document.getElementById('imgPicture').src = window.URL.createObjectURL(this.files[0])" />
+    </div>
+    </div>
+        <div class="row">
+            <div class="col-md-6">
+            <button id="update-profile-button" type="submit" class="w-100 form-control btn btn-lg btn-primary">Save</button>
+    </div>
+            </div>
+    </form>*/
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

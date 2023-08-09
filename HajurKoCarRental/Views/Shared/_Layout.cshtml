@@ -1,0 +1,349 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using HajurKoCarRental.Areas.Identity.Data;
+@using HajurKoCarRental.Data;
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext Context
+
+@{
+	var userDetails = await UserManager.GetUserAsync(User);
+
+	var navbarExpand = "navbar-expand-lg";
+	var accountToggleShow = "d-none d-lg-block";
+	var accountToggleHide = "d-block d-lg-none";
+	if (!SignInManager.IsSignedIn(User))
+	{
+		navbarExpand = "navbar-expand-sm";
+	}
+
+	if (User.IsInRole("User"))
+	{
+		navbarExpand = "navbar-expand-md";
+		accountToggleShow = "d-none d-md-block";
+		accountToggleHide = "d-block d-md-none";
+	}
+
+	//var eventTypesList = Context.EventTypes.ToList<EventTypes>();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>@ViewData["Title"]</title>
+	<link rel="icon" type="image/x-icon" href="~/favicon.ico">
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/dt-1.13.2/b-2.3.4/r-2.4.0/sp-2.1.1/datatables.min.css" />
+
+	<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+	<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
+
+<body>
+	<div class="content">
+		<div class="clear-fix pt-5 pb-3"></div>
+		<nav class="navbar @navbarExpand navbar-light bg-white border-bottom border-5  fixed-top">
+			<div class="container">
+				<div class="navbar-header logo-nav">
+					<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HajurKoCarRental</a>
+				</div>
+
+				<div class="collapse navbar-collapse flex-row-reverse" id="topNav">
+					<ul class="nav navbar-nav text-light">
+						@if (!SignInManager.IsSignedIn(User))
+						{
+							<li class="nav-item">
+								<a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+							</li>
+						}
+
+						@if (SignInManager.IsSignedIn(User))
+						{
+							<li class="nav-item">
+								<a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index"><span class="fas fa-binoculars"></span> Browse</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" asp-area="" asp-controller="Requests" asp-action="Index"><span class="fas fa-handshake"></span> Requests</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" asp-area="" asp-controller="Damages" asp-action="Index"><span class="fas fa-car-burst"></span> Damages</a>
+							</li>
+
+
+							@if (!User.IsInRole("User"))
+							{
+								
+								<li class="nav-item dropdown">
+									<a class="nav-link  dropdown-toggle" href="#" role="button" id="requestsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+										<span class="fas fa-hand-holding-hand"></span> Manage Requests
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="requestsDropdown">
+										
+										<li><a asp-area="" asp-controller="Requests" asp-action="Requesters" class="nav-link dropdown-item"><span class="fas fa-car-on"></span> Rental Requests</a></li>
+										
+										<li><a asp-area="" asp-controller="Damages" asp-action="Requesters" asp-route-id="@userDetails.Id" class="nav-link dropdown-item"><span class="fas fa-triangle-exclamation"></span> Damage Requests</a></li>
+
+									</ul>
+								</li>
+
+								<li class="nav-item dropdown">
+									<a class="nav-link  dropdown-toggle" href="#" role="button" id="requestsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+										<span class="fas fa-chart-line"></span> Stats
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="requestsDropdown">
+
+										<li><a asp-area="" asp-controller="Stats" asp-action="Index" class="nav-link dropdown-item"><span class="fas fa-cash-register"></span> Sales</a></li>
+
+										<li><a asp-area="" asp-controller="Stats" asp-action="Cars" asp-route-id="@userDetails.Id" class="nav-link dropdown-item"><span class="fas fa-clipboard"></span> Car Status</a></li>
+
+									</ul>
+								</li>
+							}
+							
+							@if (!User.IsInRole("User"))
+							{
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" role="button" id="inventoryManagementDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+										<span class="fas fa-warehouse"></span> Inventory
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="inventoryManagementDropdown">
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="Brands" asp-action="Index"><span class="far fa-copyright"></span> Brands List</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="Brands" asp-action="Create"><span class="fas fa-circle-plus"></span> Add Brand</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="VehicleTypes" asp-action="Index"><span class="fas fa-filter"></span> Types List</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="VehicleTypes" asp-action="Create"><span class="fas fa-filter-circle-xmark"></span> Add Type</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="VehicleSubTypes" asp-action="Index"><span class="fas fa-filter"></span> Sub-Types List</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="VehicleSubTypes" asp-action="Create"><span class="fas fa-circle-plus"></span> Add Sub-Type</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="Cars" asp-action="Index"><span class="fas fa-warehouse"></span> Cars List</a>
+										</li>
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="Cars" asp-action="Create"><span class="fas fa-truck-moving"></span> Add Cars</a>
+										</li>
+									</ul>
+								</li>
+							}
+							@if (User.IsInRole("Admin")) // only show if Admin is logged in
+							{
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" role="button" id="userManagementDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+										<span class="fa fa-user"></span> Users
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="userManagementDropdown">
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" asp-area="" asp-controller="Users" asp-action="Index"><span class="far fa-address-book"></span> Users List</a>
+										</li>
+										<li class="nav-item">
+											<a class="nav-link" asp-area="Identity" asp-page="/Account/Register"><span class="fa fa-user-plus"></span> Register</a>
+										</li>
+									</ul>
+								</li>
+							}
+
+							<li class="nav-item dropdown @accountToggleHide">
+								<a class="nav-link dropdown-toggle" href="#" role="button" id="userManagementSmallDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+									<span class="far fa-circle-user"></span> @(userDetails.FirstName + " " + userDetails.LastName)
+								</a>
+								<ul class="dropdown-menu" aria-labelledby="userManagementSmallDropdown">
+									@if (User.IsInRole("User"))
+									{
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" href="/Requests">
+												<span class="fa fa-clipboard-user"></span> View Your Review Requests
+											</a>
+										</li>
+									}
+									else
+									{
+										<li class="nav-item">
+											<a class="dropdown-item nav-link" href="/Reviews/Reviewer/@userDetails.Id">
+												<span class="fa fa-file-invoice-dollar"></span> View Your Reviews
+											</a>
+										</li>
+									}
+									<li class="nav-item">
+										<a class="dropdown-item nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+											<span class="fa fa-user"></span> Manage Your Account
+										</a>
+									</li>
+									<li class="nav-item">
+										<form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+											<button type="submit" class="dropdown-item nav-link btn btn-link"><span class="fa fa-sign-out-alt"></span> Logout</button>
+										</form>
+									</li>
+								</ul>
+							</li>
+						}
+						else
+						{
+							<li class="nav-item login-btn">
+								<a class="nav-link" asp-area="Identity" asp-page="/Account/Login"><span class="fa fa-user"></span> Login/Signup</a>
+							</li>
+						}
+					</ul>
+				</div>
+				<ul class="nav navbar-nav text-light @accountToggleShow">
+					@if (SignInManager.IsSignedIn(User))
+					{
+						<li class="nav-item dropdown">
+							<a class="nav-link" href="#" role="button" id="accountManagementDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+								<div class="accountToggle">
+									<img alt="Account" src="data:image/*;base64,@(Convert.ToBase64String(userDetails.Picture))"></img>
+								</div>
+							</a>
+							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountManagementDropdown">
+								<li class="nav-item">
+									<div class="row mx-0 accountCard">
+										<div class="col-3 my-auto">
+											<div class="accountCardImage">
+												<img alt="Profile Picture" src="data:image/*;base64,@(Convert.ToBase64String(userDetails.Picture))"></img>
+											</div>
+										</div>
+										<div class="col-9 text-nowrap">
+											<div class="row mx-0">
+												<text>
+													@(userDetails.FirstName + " " + userDetails.LastName)
+												</text>
+											</div>
+											<div class="row mx-0">
+												<text>
+													<span class="fa fa-envelope"></span> @userDetails.Email
+												</text>
+											</div>
+										</div>
+									</div>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								@if (User.IsInRole("User"))
+								{
+									<li class="nav-item">
+										<a class="dropdown-item nav-link" href="/Requests">
+											<span class="fa fa-clipboard-user"></span> View Your Review Requests
+										</a>
+									</li>
+								}
+								else
+								{
+									<li class="nav-item">
+										<a class="dropdown-item nav-link" href="/Reviews/Reviewer/@userDetails.Id">
+											<span class="fa fa-file-invoice-dollar"></span> View Your Reviews
+										</a>
+									</li>
+								}
+
+
+								<li><hr class="dropdown-divider"></li>
+								<li class="nav-item">
+									<a class="dropdown-item nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+										<span class="fa fa-user"></span> Manage Your Account
+									</a>
+								</li>
+
+								<li class="nav-item">
+									<form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+										<button type="submit" class="dropdown-item nav-link btn btn-link"><span class="fa fa-sign-out-alt"></span> Logout</button>
+									</form>
+								</li>
+							</ul>
+						</li>
+					}
+				</ul>
+				<button class="navbar-toggler text-light" type="button" data-bs-toggle="collapse" data-bs-target="#topNav" aria-controls="topNav" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+			</div>
+		</nav>
+
+		<div class="container mt-3" id="main">
+
+			@RenderBody()
+
+			@if (!(ViewData["Title"] == "Home Page"))
+			{
+				<hr class="underline" style="height:2px;opacity:1">
+			}
+		</div>
+
+		<footer class="pt-4 pb-4 footer">
+			<div class="container pt-4">
+				<div class="row">
+					<div class="col-md-6 col-sm-12 col-12 pb-3">
+						<h5>ABOUT<br>HAJUR KO CAR RENTAL</h5>
+						<p>
+							HajurKoCarRental is an online platform for vehicle renting,
+							with an aim to provide an easy and accessible way of renting wise range of vehicles for your needs.
+							At HajurKoCarRental, you can just submit your license or citizenship to rent a vehicle of your selection.
+						</p>
+					</div>
+					<div class="col-md-2 col-sm-6 col-6 pb-3">
+						<h5>QUICK LINKS</h5>
+						<ul>
+							<li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+							<li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+						</ul>
+					</div>
+					<div class="col-md-3 pb-3 logo">
+						<h5 class="logo-footer">HajurKoCarRental</h5>
+						<p>Bringing Access to Your Vehicle Needs!</p>
+					</div>
+				</div>
+				<div class="w-100 text-center">
+					&copy; 2023 - HajurKoCarRental
+				</div>
+			</div>
+		</footer>
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	
+	<script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/bs5/dt-1.13.2/b-2.3.4/r-2.4.0/sp-2.1.1/datatables.min.js"></script>
+	<script>
+		// project data table
+		$(document).ready(function () {
+			$('#myTable')
+				.addClass('nowrap')
+				.dataTable({
+					responsive: true,
+				});
+			$('#myRequestsTable').show();
+
+			$('#myTable1')
+				.dataTable({
+					responsive: true,
+				});
+			$('#myRequestsTable1').show();
+
+			$('#myTable2')
+				.dataTable({
+					responsive: true,
+				});
+
+
+			$('#myRequestsTable2').show();
+			$(window).trigger('resize');
+		});
+	</script>
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

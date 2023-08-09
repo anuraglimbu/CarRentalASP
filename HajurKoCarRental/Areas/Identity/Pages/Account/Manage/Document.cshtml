@@ -1,0 +1,90 @@
+﻿@page
+@model DocumentModel
+
+@using Microsoft.AspNetCore.Identity
+@using HajurKoCarRental.Areas.Identity.Data;
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Manage Document";
+    ViewData["ActivePage"] = ManageNavPages.Document;
+
+    bool editingOtherUser = false;
+    string userId = "";
+    string handler = "";
+    var firstName = "";
+
+    if (ViewData["userId"] != null)
+    {
+        userId = (string)ViewData["userId"];
+        editingOtherUser = (UserManager.GetUserId(User) == userId) ? false : true;
+        var user = UserManager.FindByIdAsync(userId).Result;
+        firstName = user.FirstName;
+    }
+
+    if (editingOtherUser)
+    {
+        ViewData["Title"] = "Manage " + firstName + "'s Document";
+        handler = "other";
+    }
+
+}
+
+<h3 class="text-color-primary">@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="document-form" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="row">
+                        @if (Model.IdentificationDocument != null)
+                        {
+                            if (Model.IdentificationDocumentsType == "application/pdf")
+                            {
+                                <div class="col-sm-9">
+                                    <div class="form-floating mb-2">
+                                        <input asp-for="IdentificationDocument" value="Document In PDF format" class="form-control" disabled />
+                                        <label asp-for="IdentificationDocument" class="form-label"></label>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                    <div class="form-floating mb-2">
+                                        <img id="imgPicture" src="data:image/*;base64,@(Convert.ToBase64String(Model.IdentificationDocument))">
+                                        <label asp-for="IdentificationDocument" class="form-label"></label>
+                                    </div>
+                            }
+                        }
+                        else
+                        {
+                            
+                            <div class="form-floating mb-2">
+                                <input asp-for="IdentificationDocument" value="No Identification Document" class="form-control" disabled />
+                                <label asp-for="IdentificationDocument" class="form-label"></label>
+                            </div>
+                        }
+                    
+                @if (Model.IdentificationDocumentsType == "application/pdf")
+                {
+                    <div class="col-sm-3">
+                        <div class="form-floating mb-2">
+                            <a asp-controller="Users" asp-action="DownloadDocument" asp-route-id="@Model.Id" target="_blank" class="text-decoration-none">
+                                <button type="button" class="btn btn-download-doc download-background-reviewed">View</button>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="form-floating mb-3">
+                <input type="file" accept=".png,.jpg,.jpeg,.pdf" asp-for="Input.NewIdentificationDocument" class="form-control" aria-required="true" />
+                <label asp-for="Input.NewIdentificationDocument" class="form-label"></label>
+                <span asp-validation-for="Input.NewIdentificationDocument" class="text-danger"></span>
+            </div>
+            <button id="change-document-button" type="submit" asp-page-handler="@handler" asp-route-userId="@userId" class="w-100 form-control btn btn-lg btn-primary">Update document</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

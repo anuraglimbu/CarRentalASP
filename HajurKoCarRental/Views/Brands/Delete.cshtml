@@ -1,0 +1,43 @@
+﻿@model HajurKoCarRental.Models.Brands
+
+@{
+    ViewData["Title"] = "Delete Brand";
+    int numOfCars = (int)ViewData["numOfCars"];
+}
+
+<h4 class="fw-bolder h4 text-center">@ViewData["Title"]</h4>
+<center>
+    <hr class="underline" style="width:5em;height:3px;opacity:1">
+</center>
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8 col-sm-10 col-xs-12">
+        <div class="card rounded-0 shadow">
+            <div class="card-body">
+                <div class="container-fluid">
+                    <h3>Are you sure you want to delete this?</h3>
+                    <form asp-action="Delete">
+                        <div class="form-floating mb-2">
+                            <input asp-for="Name" disabled class="form-control" />
+                            <label asp-for="Name" class="control-label"></label>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <input name="Number of Cars" type="text" value="@numOfCars" disabled class="form-control" />
+                            <label for="Number of Cars" class="control-label">Number of Cars of This Type</label>
+                        </div>
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input cursor-pointer" type="checkbox" name="delOption" value="delete" role="switch" id="flexSwitchCheckDefault">
+                            <label class="form-check-label" for="flexSwitchCheckDefault">Delete Cars of this Brand too?</label>
+                        </div>
+                        <div class="form-group text-center">
+                            <input type="submit" value="Delete" class="form-control w-auto btn btn-danger" />
+                            <a asp-controller="Brands" asp-action="Index" class="form-control w-auto btn btn-secondary"><span class="fa fa-arrow-left"></span> Back to List</a>
+                            <a href="/Search?brandID=@Model.Id" class="btn btn-secondary" title="View Cars of This Brand"><span class="fa fa-arrow-right"></span> View Cars</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

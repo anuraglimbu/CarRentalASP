@@ -1,0 +1,109 @@
+﻿@model IEnumerable<HajurKoCarRental.Models.DamageCreateViewModel>
+
+@using Microsoft.AspNetCore.Identity
+@using HajurKoCarRental.Areas.Identity.Data
+@inject UserManager<ApplicationUser> UserManager
+
+
+@{
+    ViewData["Title"] = "Your Damage requests";
+}
+
+<h4 class="fw-bolder h4 text-center">@ViewData["Title"]</h4>
+<center>
+    <hr class="underline" style="width:5em;height:3px;opacity:1">
+</center>
+
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        @if (TempData["StatusMessage"] != null)
+        {
+            string message = (string)TempData["StatusMessage"];
+            var statusMessageClass = message.StartsWith("Error") ? "danger" : "success";
+            <div class="alert alert-@statusMessageClass alert-dismissible rounded-0" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                @message
+            </div>
+        }
+
+        <div class="card rounded-0">
+            <div class="col-lg-12">
+                <div class="card-body">
+                    <table id="myTable" class="table table-hover align-middle mb-0" style="width:100% !important;" role="grid">
+                        <thead>
+                            <tr>
+                                <th>Request Id</th>
+                                <th>Picture</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Created On</th>
+                                <th>Repair Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="fw-bold list-id text-color-secondary">#@item.Id</a>
+                                    </td>
+                                    <td>
+                                        @if (item.CarData.Picture != null)
+                                        {
+                                            <div class="form-floating mb-3">
+                                                <img id="imgPicture" src="data:image/*;base64,@(Convert.ToBase64String(item.CarData.Picture))">
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span>Deleted</span>
+                                        }
+
+                                    </td>
+                                    <td>
+                                        @item.CarData.Name
+                                    </td>
+                                    <td>
+                                        @item.Description
+                                    </td>
+                                    <td>
+                                        @item.RecordCreatedOn!.Value.ToShortDateString()
+                                    </td>
+                                    <td class="dt-center">
+                                        @item.RepairPrice
+                                    </td>
+                                    <td class="dt-center">
+                                        @if (item.Paid == 1)
+                                        {
+
+                                            <span class="badge table-badge-reviewed">Paid</span>
+
+                                        }
+                                        else if (item.Reviewed == 1)
+                                        {
+                                            <span class="badge table-badge-reviewing">Reviewed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge table-badge-pending">Pending</span>
+                                        }
+                                    </td>
+                                    <td class="dt-center">
+                                        <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-color-primary" title="View Damage Detail"><i class="far fa-eye"></i></a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-danger" title="Update Damage Request"><i class="fa fa-edit"></i></a>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

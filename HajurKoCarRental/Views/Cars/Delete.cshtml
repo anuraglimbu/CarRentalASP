@@ -1,0 +1,150 @@
+﻿@model HajurKoCarRental.Models.InventoryCreateModel
+
+@{
+    ViewData["Title"] = "Delete Car";
+}
+
+
+<h4 class="fw-bolder h4 text-center">@ViewData["Title"]</h4>
+<center>
+    <hr class="underline" style="width:5em;height:3px;opacity:1">
+</center>
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8 col-sm-10 col-xs-12">
+        <div class="card rounded-0 shadow">
+            <div class="card-body">
+                <div class="container-fluid">
+                    <form asp-action="Delete" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-0"></div>
+                        <input asp-for="Id" class="form-control" type="hidden" />
+                        <input asp-for="InserterId" class="form-control" />
+                        <div class="form-floating mb-2">
+                            <select asp-for="BrandId" disabled class="form-control">
+                                <option value="-1" selected>Select the vehicle brand</option>
+                                @foreach (var brand in Model.Brands)
+                                {
+                                    <option value="@brand.Id">@brand.Name</option>
+                                }
+                            </select>
+                            <label asp-for="BrandId" class="control-label"></label>
+                            <span asp-validation-for="BrandId" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <select asp-for="TypeId" disabled class="form-control" id="vehicleType">
+                                <option value="0" selected>Select the vehicle type</option>
+                                @foreach (var type in Model.VehicleTypes)
+                                {
+                                    <option value="@type.Id">@type.Name</option>
+                                }
+                            </select>
+                            <label asp-for="TypeId" class="control-label"></label>
+                            <span asp-validation-for="TypeId" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <select asp-for="SubTypeId" disabled id="vehicleSubType" class="form-control">
+                                <option value="0" selected>Select the vehicle sub-type</option>
+                                @foreach (var subType in Model.VehicleTypesAndSubTypes[Model.TypeId])
+                                {
+                                    <option value="@subType.Id">@subType.Name</option>
+                                }
+                            </select>
+                            <label asp-for="SubTypeId" class="control-label"></label>
+                            <span asp-validation-for="SubTypeId" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Name" disabled class="form-control" />
+                            <label asp-for="Name" class="control-label"></label>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <textarea asp-for="Description" disabled class="form-control"></textarea>
+                            <label asp-for="Description" class="control-label"></label>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <img id="imgPicture" src="data:image/*;base64,@(Convert.ToBase64String(Model.Picture))">
+                            <label asp-for="Picture" class="form-label"></label>
+                        </div>
+                        <input asp-for="PictureName" class="form-control" />
+                        <input asp-for="PictureExtension" class="form-control" />
+                        <div class="form-floating mb-2">
+                            <select asp-for="Fuel" disabled class="form-control">
+                                <option value="Diesel">Diesel</option>
+                                <option value="Petrol">Petrol</option>
+                                <option value="Electric">Electric</option>
+                            </select>
+                            <label asp-for="Fuel" class="control-label"></label>
+                            <span asp-validation-for="Fuel" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <select asp-for="Transmission" disabled class="form-control">
+                                <option value="Manual">Manual</option>
+                                <option value="Auto">Auto</option>
+                                <option value="CVT">CVT</option>
+                            </select>
+                            <label asp-for="Transmission" class="control-label"></label>
+                            <span asp-validation-for="Transmission" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="PlateNumber" disabled class="form-control" />
+                            <label asp-for="PlateNumber" class="control-label"></label>
+                            <span asp-validation-for="PlateNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="PricePerDay" disabled class="form-control" />
+                            <label asp-for="PricePerDay" class="control-label"></label>
+                            <span asp-validation-for="PricePerDay" class="text-danger"></span>
+                        </div>
+                        @if (!User.IsInRole("User"))
+                        {
+                            <div class="form-floating mb-3">
+                                <select asp-for="OutOfDisplay" disabled class="form-control">
+                                    <option value="true">True</option>
+                                    <option value="false">False</option>
+                                </select>
+                                <label asp-for="OutOfDisplay" class="control-label"></label>
+                                <span asp-validation-for="OutOfDisplay" class="text-danger"></span>
+                            </div>
+                        }
+                        <input asp-for="RecordCreatedOn" class="form-control" />
+                        <div class="form-group text-center">
+                            <input type="submit" value="Delete" class="form-control w-auto btn btn-danger" />
+                            <a asp-action="Index" class="form-control w-auto btn btn-secondary"><span class="fa fa-arrow-left"></span> Back to Inventory</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#vehicleType").change(function () {
+            var val = $(this).val();
+            console.log("Changed #vehicleType, val: " + val);
+            $("#vehicleSubType").html(options[val]);
+        });
+
+        var options = [
+            "<option val='0' selected>Select a sub-type</option>",
+    @foreach (var types in Model.VehicleTypesAndSubTypes)
+    {
+        var optionString = "\"<option val='0' selected>Select a sub-type</option>";
+        foreach (var subtype in Model.VehicleTypesAndSubTypes[types.Key])
+        {
+            optionString += "<option value=\'" + subtype.Id + "\'>" + subtype.Name + "</option>".Normalize();
+        }
+        optionString += "\",\n";
+
+        @Html.Raw(@optionString)
+    }
+                    ];
+    });
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

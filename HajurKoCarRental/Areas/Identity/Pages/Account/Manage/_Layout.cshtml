@@ -1,0 +1,78 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using HajurKoCarRental.Areas.Identity.Data;
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout))
+    {
+        Layout = (string)parentLayout;
+    }
+    else
+    {
+        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+    }
+
+    bool editingOtherUser = false;
+    string userId = "";
+    var firstName = "";
+    bool roleIsUser = true;
+
+    if (ViewData["userId"] != null)
+    {
+        userId = (string)ViewData["userId"];
+        editingOtherUser = (UserManager.GetUserId(User) == userId) ? false : true;
+        var user = UserManager.FindByIdAsync(userId).Result;
+        firstName = user.FirstName;
+        roleIsUser = await UserManager.IsInRoleAsync(user, "User");
+    }
+}
+
+@if (!editingOtherUser)
+{
+    <h4 class="fw-bolder h4 text-center">Manage your account</h4>
+}
+else
+{
+    <h4 class="fw-bolder h4 text-center">Manage @firstName's account</h4>
+}
+<center>
+    <hr class="underline" style="width:5em;height:3px;opacity:1">
+</center>
+@if (editingOtherUser)
+{
+    <center>
+        <a class="btn btn-primary form-control w-auto mb-3" href="/Users"><span class="fa fa-arrow-left"></span> Go To User List</a>
+        <a class="btn btn-primary form-control w-auto mb-3" href="/Requests/Requester/@userId"><span class="fa fa-clipboard-user"></span> View User's Requests </a>
+        @if (!roleIsUser)
+        {
+            <a class="btn btn-primary form-control w-auto mb-3" href="/Reviews/Reviewer/@userId"><span class="fa fa-clipboard-user"></span> View User's Reviews </a>
+        }
+    </center>
+}
+
+<div>
+    <center>
+        @if (!editingOtherUser)
+        {
+            <h2 class="text-color-primary">Change your account settings</h2>
+        }
+        else
+        {
+            <h2>Change @firstName's account settings</h2>
+        }
+
+    </center>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ManageNav" />
+        </div>
+        <div class="col-md-9">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

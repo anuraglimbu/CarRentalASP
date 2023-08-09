@@ -1,0 +1,60 @@
+﻿@page
+@model PersonalDataModel
+
+@using Microsoft.AspNetCore.Identity
+@using HajurKoCarRental.Areas.Identity.Data;
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Delete Account";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+
+    bool editingOtherUser = false;
+    string userId = "";
+    string handler = "";
+    var firstName = "";
+
+    if (ViewData["userId"] != null)
+    {
+        userId = (string)ViewData["userId"];
+        editingOtherUser = (UserManager.GetUserId(User) == userId) ? false : true;
+        var user = UserManager.FindByIdAsync(userId).Result;
+        firstName = user.FirstName;
+    }
+
+    if (editingOtherUser)
+    {
+        ViewData["Title"] = "Delete " + firstName + "'s Account";
+        handler = "other";
+    }
+}
+
+<h3 class="text-color-primary">@ViewData["Title"]</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        @if (!editingOtherUser)
+        {
+            <p>Your account contains personal data that you have given us. This page allows you to delete that data.</p>
+            <p>
+                <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+            </p>
+        }
+        else
+        {
+            <p>
+                <strong>Deleting this data will permanently remove @firstName's account, and this cannot be recovered.</strong>
+            </p>
+        }
+
+        <!--form id="download-data" asp-page="DownloadPersonalData" method="post">
+            <button class="btn btn-primary" type="submit">Download</button>
+        </form-->
+        <p>
+            <a id="delete" asp-page="DeletePersonalData" asp-page-handler="@handler" asp-route-userId="@userId" class="btn btn-danger">Delete Data?</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

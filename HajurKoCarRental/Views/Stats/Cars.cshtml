@@ -1,0 +1,311 @@
+﻿
+@using Microsoft.AspNetCore.Identity
+@using HajurKoCarRental.Areas.Identity.Data
+@inject UserManager<ApplicationUser> UserManager
+@{
+	ViewData["Title"] = "Car Inventory";
+
+	List<Brands> brands = (List<Brands>)ViewData["brands"];
+	List<VehicleType> types = (List<VehicleType>)ViewData["types"];
+	List<VehicleSubType> subTypes = (List<VehicleSubType>)ViewData["subTypes"];
+
+	List<Inventory> cars = (List<Inventory>)ViewData["cars"];
+	List<Request> requests = (List<Request>)ViewData["requests"];
+	List<Damage> damages = (List<Damage>)ViewData["damages"];
+
+	List<ApplicationUser> users = (List<ApplicationUser>)ViewData["users"];
+	List<IdentityRole> roles = (List<IdentityRole>)ViewData["roles"];
+	var userRoles = ViewData["userRoles"];
+}
+
+<h4 class="fw-bolder h4 text-center">@ViewData["Title"]</h4>
+<center>
+	<hr class="underline" style="width:5em;height:3px;opacity:1">
+</center>
+
+@if (TempData["AdminStatusMessage"] != null)
+{
+	string message = (string)TempData["AdminStatusMessage"];
+	var statusMessageClass = message.StartsWith("Error") ? "danger" : "success";
+	<div class="alert alert-@statusMessageClass alert-dismissible rounded-0" role="alert">
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		@message
+	</div>
+}
+
+<nav>
+	<div class="nav nav-tabs" id="nav-tab" role="tablist">
+		<button class="nav-link active" id="users-all-tab" data-bs-toggle="tab" data-bs-target="#users-all" type="button" role="tab" aria-controls="users-all" aria-selected="true">All</button>
+		<button class="nav-link" id="users-reviewers-tab" data-bs-toggle="tab" data-bs-target="#users-reviewers" type="button" role="tab" aria-controls="users-reviewers" aria-selected="false">On Rent</button>
+		<button class="nav-link" id="users-users-tab" data-bs-toggle="tab" data-bs-target="#users-users" type="button" role="tab" aria-controls="users-users" aria-selected="false">Available</button>
+	</div>
+</nav>
+
+<div class="card rounded-0 border-top-0">
+	<div class="card-body">
+		<div class="container-fluid table-responsive">
+			<div class="tab-content" id="nav-tabContent">
+				<div class="tab-pane fade show active" id="users-all" role="tabpanel" aria-labelledby="users-all-tab">
+					<div class="row mt-2">
+						<div class="col-md-12">
+							<div class="card-body">
+								<table id="myTable" class="table table-hover align-middle mb-0" style="width:100% !important;" role="grid">
+									<thead>
+										<tr>
+											<th>Car Id</th>
+											<th>Picture</th>
+											<th>Name</th>
+											<th>Brand</th>
+											<th>Type</th>
+											<th>Sub-Type</th>
+											<th>Price per day</th>
+											<th>Fuel</th>
+											<th>Transmission</th>
+											<th>Actions</th>
+											<th>Description</th>
+											<th>Inserter</th>
+											<th>Inserted Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var item in cars)
+										{
+											<tr>
+												<td>
+													<a asp-action="Details" asp-route-id="@item.Id" class="fw-bold list-id text-color-secondary">#@item.Id</a>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<img id="imgPicture" src="data:image/*;base64,@(Convert.ToBase64String(item.Picture))">
+													</div>
+												</td>
+												<td>
+													@item.Name
+												</td>
+												<td>
+													@brands!.First(b => b.Id == item.BrandId).Name
+												</td>
+												<td>
+													@types!.First(t => t.Id == item.TypeId).Name
+												</td>
+												<td>
+													@subTypes!.First(st => st.Id == item.SubTypeId).Name
+												</td>
+												<td class="dt-center">
+													@item.PricePerDay
+												</td>
+												<td class="dt-center">
+													@item.Fuel
+												</td>
+												<td class="dt-center">
+													@item.Transmission
+												</td>
+												<td class="dt-center">
+													<div class="btn-group" role="group" aria-label="Basic outlined example">
+														<a asp-controller="Cars" asp-action="Details" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-color-primary" title="View Car Detail"><i class="far fa-eye"></i></a>
+
+														<a asp-controller="Cars" asp-action="Edit" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-success" title="Edit Car"><i class="fa fa-edit"></i></a>
+
+														<a asp-controller="Cars" asp-action="Delete" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-danger" title="Delete Car"><i class="fa fa-trash"></i></a>
+
+													</div>
+												</td>
+												<td>
+													@item.Description
+												</td>
+
+												<td>
+													<img class="list-avatar rounded-circle" src="data:image/*;base64,@(Convert.ToBase64String(users.First(u => u.Id == item.InserterId).Picture))" alt="Inserter Avatar">
+													<a asp-controller="Users" asp-action="Details" asp-route-id="@item.InserterId" class="fw-bold ms-1 text-color-primary list-id text-decoration-none">@users.First(u => u.Id == item.InserterId).FirstName @users.First(u => u.Id == item.InserterId).FirstName</a>
+												</td>
+												<td class="dt-center">
+													@item.RecordCreatedOn!.Value.ToShortDateString()
+												</td>
+
+											</tr>
+										}
+									</tbody>
+								</table>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="tab-pane fade" id="users-users" role="tabpanel" aria-labelledby="users-users-tab">
+					<div class="row mt-2">
+						<div class="col-md-12">
+							<div class="card-body">
+								<table id="myTable1" class="table table-hover align-middle mb-0" style="width:100% !important;" role="grid">
+									<thead>
+										<tr>
+											<th>Car Id</th>
+											<th>Picture</th>
+											<th>Name</th>
+											<th>Brand</th>
+											<th>Type</th>
+											<th>Sub-Type</th>
+											<th>Price per day</th>
+											<th>Fuel</th>
+											<th>Transmission</th>
+											<th>Actions</th>
+											<th>Description</th>
+											<th>Inserter</th>
+											<th>Inserted Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var item in cars.Where(c => c.OutOfDisplay == true))
+										{
+											<tr>
+												<td>
+													<a asp-action="Details" asp-route-id="@item.Id" class="fw-bold list-id text-color-secondary">#@item.Id</a>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<img id="imgPicture" src="data:image/*;base64,@(Convert.ToBase64String(item.Picture))">
+													</div>
+												</td>
+												<td>
+													@item.Name
+												</td>
+												<td>
+													@brands!.First(b => b.Id == item.BrandId).Name
+												</td>
+												<td>
+													@types!.First(t => t.Id == item.TypeId).Name
+												</td>
+												<td>
+													@subTypes!.First(st => st.Id == item.SubTypeId).Name
+												</td>
+												<td class="dt-center">
+													@item.PricePerDay
+												</td>
+												<td class="dt-center">
+													@item.Fuel
+												</td>
+												<td class="dt-center">
+													@item.Transmission
+												</td>
+												<td class="dt-center">
+													<div class="btn-group" role="group" aria-label="Basic outlined example">
+														<a asp-controller="Cars" asp-action="Details" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-color-primary" title="View Car Detail"><i class="far fa-eye"></i></a>
+
+														<a asp-controller="Cars" asp-action="Edit" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-success" title="Edit Car"><i class="fa fa-edit"></i></a>
+
+														<a asp-controller="Cars" asp-action="Delete" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-danger" title="Delete Car"><i class="fa fa-trash"></i></a>
+
+													</div>
+												</td>
+												<td>
+													@item.Description
+												</td>
+
+												<td>
+													<img class="list-avatar rounded-circle" src="data:image/*;base64,@(Convert.ToBase64String(users.First(u => u.Id == item.InserterId).Picture))" alt="Inserter Avatar">
+													<a asp-controller="Users" asp-action="Details" asp-route-id="@item.InserterId" class="fw-bold ms-1 text-color-primary list-id text-decoration-none">@users.First(u => u.Id == item.InserterId).FirstName @users.First(u => u.Id == item.InserterId).FirstName</a>
+												</td>
+												<td class="dt-center">
+													@item.RecordCreatedOn!.Value.ToShortDateString()
+												</td>
+
+											</tr>
+										}
+									</tbody>
+								</table>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="tab-pane fade" id="users-reviewers" role="tabpanel" aria-labelledby="users-reviewers-tab">
+					<div class="row mt-2">
+						<div class="col-md-12">
+							<div class="card-body">
+								<table id="myTable2" class="table table-hover align-middle mb-0" style="width:100% !important;" role="grid">
+									<thead>
+										<tr>
+											<th>Car Id</th>
+											<th>Picture</th>
+											<th>Name</th>
+											<th>Brand</th>
+											<th>Type</th>
+											<th>Sub-Type</th>
+											<th>Price per day</th>
+											<th>Fuel</th>
+											<th>Transmission</th>
+											<th>Actions</th>
+											<th>Description</th>
+											<th>Inserter</th>
+											<th>Inserted Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var item in cars.Where(c => c.OutOfDisplay == false))
+										{
+											<tr>
+												<td>
+													<a asp-action="Details" asp-route-id="@item.Id" class="fw-bold list-id text-color-secondary">#@item.Id</a>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<img id="imgPicture" src="data:image/*;base64,@(Convert.ToBase64String(item.Picture))">
+													</div>
+												</td>
+												<td>
+													@item.Name
+												</td>
+												<td>
+													@brands!.First(b => b.Id == item.BrandId).Name
+												</td>
+												<td>
+													@types!.First(t => t.Id == item.TypeId).Name
+												</td>
+												<td>
+													@subTypes!.First(st => st.Id == item.SubTypeId).Name
+												</td>
+												<td class="dt-center">
+													@item.PricePerDay
+												</td>
+												<td class="dt-center">
+													@item.Fuel
+												</td>
+												<td class="dt-center">
+													@item.Transmission
+												</td>
+												<td class="dt-center">
+													<div class="btn-group" role="group" aria-label="Basic outlined example">
+														<a asp-controller="Cars" asp-action="Details" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-color-primary" title="View Car Detail"><i class="far fa-eye"></i></a>
+
+														<a asp-controller="Cars" asp-action="Edit" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-success" title="Edit Car"><i class="fa fa-edit"></i></a>
+
+														<a asp-controller="Cars" asp-action="Delete" asp-route-id="@item.Id" class="btn user-card-btn-group-btn form-auto btn-outline-secondary text-danger" title="Delete Car"><i class="fa fa-trash"></i></a>
+
+													</div>
+												</td>
+												<td>
+													@item.Description
+												</td>
+
+												<td>
+													<img class="list-avatar rounded-circle" src="data:image/*;base64,@(Convert.ToBase64String(users.First(u => u.Id == item.InserterId).Picture))" alt="Inserter Avatar">
+													<a asp-controller="Users" asp-action="Details" asp-route-id="@item.InserterId" class="fw-bold ms-1 text-color-primary list-id text-decoration-none">@users.First(u => u.Id == item.InserterId).FirstName @users.First(u => u.Id == item.InserterId).FirstName</a>
+												</td>
+												<td class="dt-center">
+													@item.RecordCreatedOn!.Value.ToShortDateString()
+												</td>
+
+											</tr>
+										}
+									</tbody>
+								</table>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

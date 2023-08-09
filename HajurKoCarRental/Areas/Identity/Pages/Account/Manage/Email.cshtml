@@ -1,0 +1,54 @@
+﻿@page
+@model EmailModel
+
+@using Microsoft.AspNetCore.Identity
+@using HajurKoCarRental.Areas.Identity.Data;
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Manage Email";
+    ViewData["ActivePage"] = ManageNavPages.Email;
+
+    bool editingOtherUser = false;
+    string userId = "";
+    string handler = "";
+    var firstName = "";
+
+    if (ViewData["userId"] != null)
+    {
+        userId = (string)ViewData["userId"];
+        editingOtherUser = (UserManager.GetUserId(User) == userId) ? false : true;
+        var user = UserManager.FindByIdAsync(userId).Result;
+        firstName = user.FirstName;
+    }
+
+    if (editingOtherUser)
+    {
+        ViewData["Title"] = "Manage " + firstName + "'s Email";
+        handler = "other";
+    }
+
+}
+
+<h3 class="text-color-primary">@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="email-form" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-floating mb-2">
+                <input asp-for="Email" class="form-control" disabled />
+                <label asp-for="Email" class="form-label"></label>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" />
+                <label asp-for="Input.NewEmail" class="form-label"></label>
+                <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+            </div>
+            <button id="change-email-button" type="submit" asp-page-handler="@handler" asp-route-userId="@userId" class="w-100 form-control btn btn-lg btn-primary">Change email</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

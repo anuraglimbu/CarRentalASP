@@ -1,0 +1,90 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    var roles = (List<IdentityRole>)ViewData["roles"];
+}
+
+<div class="row justify-content-center my-5">
+    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+        <div class="card rounded-0 shadow">
+            <div class="card-header">
+                <div class="card-title text-center h4 fw-bolder">Register a user</div>
+            </div>
+            <div class="card-body">
+                <div class="container-fluid">
+                    <partial name="_StatusMessage" for="StatusMessage" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-0 pb-0"></div>
+                    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <div class="form-floating mb-2">
+                                    <input asp-for="Input.FirstName" class="form-control" autocomplete="First Name" aria-required="true" />
+                                    <label asp-for="Input.FirstName"></label>
+                                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                                </div>
+                                <div class="form-floating mb-2">
+                                    <input asp-for="Input.LastName" class="form-control" />
+                                    <label asp-for="Input.LastName" class="form-label"></label>
+                                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                                </div>
+                                <div class="form-floating mb-2">
+                                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+                                    <label asp-for="Input.Email"></label>
+                                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                </div>
+                                <div class="form-floating mb-2">
+                                    <input asp-for="Input.Address" class="form-control" />
+                                    <label asp-for="Input.Address" class="form-label"></label>
+                                    <span asp-validation-for="Input.Address" class="text-danger"></span>
+                                </div>
+                                <div class="form-floating mb-2">
+                                    <input asp-for="Input.PhoneNumber" class="form-control" />
+                                    <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                                </div>
+                                <div class="form-floating mb-2">
+                                    <select asp-for="Input.UserRole" class="form-select" asp-items='new SelectList(roles, "Id", "Name")'>
+                                        <option value="">Select Role</option>
+                                    </select>
+                                    <label asp-for="Input.UserRole" class="form-label"></label>
+                                    <span asp-validation-for="Input.UserRole" class="text-danger"></span>
+                                </div>
+                                <div class="form-floating mb-2">
+                                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                                    <label asp-for="Input.Password"></label>
+                                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                                </div>
+                                <div class="form-floating mb-2">
+                                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+                                    <label asp-for="Input.ConfirmPassword"></label>
+                                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-sm-7 col-md-6 col-lg-5">
+                                <div class="form-floating mb-2">
+                                    <img id="imgPicture" src="~/images/add-user.png">
+                                    <label asp-for="Input.Picture" id="imgLabel" class="form-label"></label>
+                                    <span asp-validation-for="Input.Picture" class="text-danger"></span>
+                                </div>
+
+                                <input type="file" accept=".png,.jpg,.jpeg,.gif,.tif" asp-for="Input.Picture" class="form-control mb-3" id="formFile"
+                                       onchange="document.getElementById('imgPicture').src = window.URL.createObjectURL(this.files[0])" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button id="registerSubmit" type="submit" class="w-100 form-control btn btn-lg btn-primary">Register</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

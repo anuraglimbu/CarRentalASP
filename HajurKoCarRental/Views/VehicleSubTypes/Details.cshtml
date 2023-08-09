@@ -1,0 +1,42 @@
+﻿@model HajurKoCarRental.Models.VehicleSubType
+
+@{
+    ViewData["Title"] = "Sub-Type Details";
+    VehicleType vehicleType = (VehicleType) ViewData["vehicleType"]!;
+}
+
+<h4 class="fw-bolder h4 text-center">@ViewData["Title"]</h4>
+<center>
+    <hr class="underline" style="width:5em;height:3px;opacity:1">
+</center>
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8 col-sm-10 col-xs-12">
+        <div class="card rounded-0 shadow">
+            <div class="card-body">
+                <div class="container-fluid">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-0"></div>
+
+                        <div class="form-floating mb-2">
+                            <input name="Type" disabled value="@vehicleType.Name" class="form-control" />
+                            <label for="Type" class="control-label">Vehicle Type</label>
+                        </div>
+
+                        <div class="form-floating mb-2">
+                            <input asp-for="Name" disabled class="form-control" />
+                            <label asp-for="Name" class="control-label"></label>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-group text-center">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="form-control w-auto btn btn-primary">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="form-control w-auto btn btn-danger">Delete</a>
+                            <a asp-action="Index" class="form-control w-auto btn btn-secondary"><span class="fa fa-arrow-left"></span> Back to List</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

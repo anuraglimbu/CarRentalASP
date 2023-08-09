@@ -1,0 +1,21 @@
+﻿@page
+@model AccessDeniedModel
+@{
+    ViewData["Title"] = "Access denied";
+}
+
+<h4 class="fw-bolder text-center text-danger">@ViewData["Title"]</h4>
+<center>
+    <hr class="underline" style="width:5em;height:3px;opacity:1">
+</center>
+
+<div class="row justify-content-center my-5">
+    <div class="my-5">
+        <p class="text-center text-danger">
+            You do not have access to this resource.
+        </p>
+        <p class="text-center">
+            <a class="navbar-brand text-decoration-underline small" asp-area="" asp-controller="Home" asp-action="Index">Go To Home</a>
+        </p>
+    </div>
+</div>
